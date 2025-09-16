@@ -17,21 +17,26 @@ const ContextProvider = (props) => {
     }, 75 * index);
   };
 
-  // const onSent = async (prompt) => {
-  //   try {
-  //     const response = await runChat(input); // call Gemini API
-  //     console.log("Gemini response:", response); // log immediately
-  //   } catch (error) {
-  //     console.error("Error running chat:", error);
-  //   }
-  // };
+  const newChat = () => {
+    setLoading(false);
+    setShowResults(false);
+  };
 
-  const onSent = async (promt) => {
+  const onSent = async (prompt) => {
     setResultData("");
     setLoading(true);
     setShowResults(true);
-    setRecentPrompt(input);
-    const response = await runChat(input);
+    const textToSend = prompt !== undefined ? prompt : input;
+
+    // Add only if not already in history
+    setPrevPrompts((prev) => {
+      if (prev.includes(textToSend)) return prev;
+      return [...prev, textToSend];
+    });
+
+    setRecentPrompt(textToSend);
+    let response = await runChat(textToSend);
+
     let responseArray = response.split("**");
     let newResponse;
     for (let i = 0; i < responseArray.length; i++) {
@@ -63,6 +68,8 @@ const ContextProvider = (props) => {
     showResults,
     loading,
     resultData,
+    setInput,
+    newChat,
   };
 
   return (
